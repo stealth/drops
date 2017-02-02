@@ -1,0 +1,22 @@
+# drops sample config file
+
+# where to bind to IPv4 or IPv6 address
+#
+#laddr = 1.2.3.4
+#laddr = 2017::1
+
+# could be any port >= 1024 , but should stay the same between
+# invocations to allow for re-discovery by peers
+lport = 7350
+
+
+# filter anything into inq from * to a dst-id that contains 11223344
+# must be all lowercase
+#filter=,11223344
+
+# filter anything into inq from src-id ce0320b33ba2c76bda77d2ab94ddda17ec1d036cb74da40f5c094054ea95e2af to
+# dst-id e58a6e0994c01eec858289aabcdd1a018ea2599f9a2fe67134a18ae36c641c72
+
+#filter=ce0320b33ba2c76bda77d2ab94ddda17ec1d036cb74da40f5c094054ea95e2af,e58a6e0994c01eec858289aabcdd1a018ea2599f9a2fe67134a18ae36c641c72
+
+
