@@ -68,6 +68,8 @@ opmsg setup is correct, you are not using null ciphers or dirty personas from te
 Every opmsg that passes the `filter=` from the config file, will be placed into `~/.drops/inq`
 where you can decrypt it using `opmsg -D`.
 
+You have to have a clock thats set more or less to the correct time (a few hours shift
+dont matter). (Will explain in a dedicated chapter later, This is just beta test now).
 
 License
 -------
