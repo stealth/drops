@@ -62,8 +62,8 @@ $ opmsg -E 1122334455667788 -o ~/.drops/global/outq/1.opmsg
 ```
 
 and its automatically delivered. Filenames must end in `.opmsg` for safety reasons.
-*Note: Since drops is a p2p network, everyone would get this message. So make sure your
-opmsg setup is correct, you are not using null ciphers or dirty personas from test setups and alike.*
+**Note: Since drops is a p2p network, everyone would get this message. So make sure your
+opmsg setup is correct, you are not using null ciphers or dirty personas from test setups and alike.**
 
 Every opmsg that passes the `filter=` from the config file, will be placed into `~/.drops/inq`
 where you can decrypt it using `opmsg -D`.
