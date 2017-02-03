@@ -28,7 +28,7 @@ namespace drops {
 
 namespace config {
 
-extern std::string cfgbase, laddr, lport, tag;
+extern std::string cfgbase, laddr, lport, laddr6, lport6, tag;
 
 extern uint64_t max_cache_size;
 

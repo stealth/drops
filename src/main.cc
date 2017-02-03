@@ -46,8 +46,10 @@ void usage(const char *s)
 {
 	cout<<"Usage: dropsd [--confdir dir] [--laddr] [--lport] [--newlocal] [-T tag] [--bootstrap node]\n\n"
 	    <<"\t--confdir,\t-c\t(must come first) defaults to ~/.drops\n"
-	    <<"\t--laddr,\t-l\tlocal IPv4/IPv6 address to bind to (default any)\n"
-	    <<"\t--lport,\t-p\tlocal port (default "<<config::lport<<")\n"
+	    <<"\t--laddr,\t-l\tlocal IPv4 address to bind to (default any)\n"
+	    <<"\t--lport,\t-p\tlocal TCPv4 port (default "<<config::lport<<")\n"
+	    <<"\t--laddr6,\t-L\tlocal IPv6 address to bind to (default any)\n"
+	    <<"\t--lport6,\t-P\tlocal TCPv6 port (default "<<config::lport6<<")\n"
 	    <<"\t--newlocal,\t-N\tinitially set up a new local drops\n"
 	    <<"\t--tag,\t\t-T\tdrops tag (defaults to 'global')\n"
 	    <<"\t--bootstrap,\t-B\tbootstrap node if node file is empty and not initial local dropsd\n\n";
@@ -168,6 +170,8 @@ int main(int argc, char **argv)
 		{"confdir", required_argument, nullptr, 'c'},
 		{"laddr", required_argument, nullptr, 'l'},
 		{"lport", required_argument, nullptr, 'p'},
+		{"laddr6", required_argument, nullptr, 'L'},
+		{"lport6", required_argument, nullptr, 'P'},
 		{"newlocal", no_argument, nullptr, 'N'},
 		{"tag", required_argument, nullptr, 'T'},
 		{"bootstrap", required_argument, nullptr, 'B'},
@@ -197,7 +201,7 @@ int main(int argc, char **argv)
 	if (parse_config(config::cfgbase) < 0)
 		cerr<<prefix<<"WARN: failed to parse config file. Continuing.\n";
 
-	while ((c = getopt_long(argc, argv, "l:p:c:T:B:N", lopts, &opt_idx)) != -1) {
+	while ((c = getopt_long(argc, argv, "l:p:L:P:c:T:B:N", lopts, &opt_idx)) != -1) {
 		switch (c) {
 		case 'l':
 			config::laddr = optarg;
@@ -242,7 +246,7 @@ int main(int argc, char **argv)
 	if (to_daemon() < 0)
 		return 1;
 
-	if (drops->init(config::laddr, config::lport, id, config::tag) < 0) {
+	if (drops->init(config::laddr, config::lport, config::laddr6, config::lport6, id, config::tag) < 0) {
 		cerr<<drops->why()<<endl;
 		return 1;
 	}

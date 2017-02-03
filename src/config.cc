@@ -35,8 +35,12 @@ namespace config {
 
 
 string cfgbase = "";
+
 string laddr = "0.0.0.0";
 string  lport = "7350";
+string laddr6 = "::";
+string  lport6 = "7350";
+
 string tag = "global";
 
 uint64_t max_cache_size = 1000*1024*1024;
@@ -68,6 +72,10 @@ int parse_config(const string &cfgbase)
 			config::laddr = sline.substr(6);
 		else if (sline.find("lport=") == 0)
 			config::lport = sline.substr(6);
+		else if (sline.find("laddr6=") == 0)
+			config::laddr6 = sline.substr(7);
+		else if (sline.find("lport6=") == 0)
+			config::lport6 = sline.substr(7);
 		else if (sline.find("filter=") == 0) {
 			string::size_type comma = sline.find(",");
 			if (comma == string::npos)

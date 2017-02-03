@@ -91,7 +91,7 @@ class drops_engine {
 	int d_max_fd{-1}, d_first_fd{-1}, d_npeers{0};
 	const int d_min_peers{20};
 
-	addrinfo *d_baddr{nullptr};	// where to bind to
+	addrinfo *d_baddr{nullptr}, *d_baddr6{nullptr};	// where to bind to
 
 	unsigned int d_version = 1;
 
@@ -175,6 +175,8 @@ public:
 	{
 		if (d_baddr)
 			freeaddrinfo(d_baddr);
+		if (d_baddr6)
+			freeaddrinfo(d_baddr6);
 
 		delete [] d_peers;
 		delete [] d_pfds;
@@ -187,7 +189,7 @@ public:
 		return d_err.c_str();
 	}
 
-	int init(const std::string &, const std::string &, const std::string &, const std::string &tag = "global");
+	int init(const std::string &, const std::string &, const std::string &, const std::string &, const std::string &, const std::string &tag = "global");
 
 	int boot_node(const std::string &n)
 	{

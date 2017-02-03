@@ -3,7 +3,8 @@ drops
 
 [dr]:ops -- dead drops for ops
 
-A _p2p_ transport network for opmsg end2end encrypted messages.
+A _p2p_ transport network for [opmsg end2end encrypted messages](https://github.com/stealth/opmsg).
+If you are new to _opmsg_, click the link for more info and how to set it up.
 
 * p2p architecture that doesnt require central servers
 * almost no meta data
@@ -14,6 +15,12 @@ A _p2p_ transport network for opmsg end2end encrypted messages.
 
 Build
 -----
+
+*Note: drops is in the beta testing phase. There are easier things than to
+get a p2p network flying and tested. For this reason, expect some changes
+to the commandline/config options. Always check your local config against
+changes of the template in `non-commercial/config` and do a `make clean`
+before `make` after a pull.*
 
 _drops_ requires  _OpenSSL_. You may use the default installed openssl of your
 system or create your own libressl install (recommended).
@@ -35,7 +42,7 @@ If you use your own openssl install, adjust the library paths inside the `Makefi
 
 ```
 $ cd src
-$ make
+$ make clean; make
 [...]
 $ make install
 
@@ -53,7 +60,13 @@ Then you simply run
 $ dropsd
 ```
 If you are missing a `nodes` file in `~/.drops/global`, you may specify the `--bootstrap`
-parameter to connect to your first node.
+parameter to connect to your first node:
+
+```
+$ dropsd --bootstrap [104.197.174.219]:7350
+```
+
+The IP is a bootstrap node that I have set up so you can test it right away.
 
 To send an opmsg to the network you would:
 
@@ -70,6 +83,10 @@ where you can decrypt it using `opmsg -D`.
 
 You have to have a clock thats set more or less to the correct time (a few hours shift
 dont matter). (Will explain in a dedicated chapter later, This is just beta test now).
+
+The log can be found in `~/.drops/global/log.txt`. It shows your peers and errors that
+might occur. Do not be worried about handshake errors or disappearing peers. This is
+not uncommon in p2p networks.
 
 License
 -------

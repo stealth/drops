@@ -100,7 +100,7 @@ int log::logit(const string &tag, const string &s, time_t t)
 
 
 
-int drops_engine::init(const string &laddr, const string &lport, const string &id, const string &tag)
+int drops_engine::init(const string &laddr, const string &lport, const string &laddr6, const string &lport6, const string &id, const string &tag)
 {
 	d_id = id;
 	d_tag = tag;
@@ -118,68 +118,6 @@ int drops_engine::init(const string &laddr, const string &lport, const string &i
 	               d_base + "/" + d_tag + "/" + d_kpath) < 0)
 		return build_error("init::" + string(sslc->why()), -1);
 
-	int r = 0;
-	addrinfo hint;
-	memset(&hint, 0, sizeof(hint));
-	hint.ai_socktype = SOCK_STREAM;
-
-	if ((r = getaddrinfo(laddr.c_str(), lport.c_str(), &hint, &d_baddr)) != 0)
-		return build_error("init::getaddrinfo:" + string(gai_strerror(r)), -1);
-
-	int sock_fd = socket(d_baddr->ai_family, SOCK_STREAM, 0);
-	if (sock_fd < 0)
-		return build_error("init::socket:", -1);
-
-	int one = 1;
-	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one));
-	one = 1;
-	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
-
-	if (bind(sock_fd, d_baddr->ai_addr, d_baddr->ai_addrlen) < 0)
-		return build_error("init::bind:", -1);
-
-	if (listen(sock_fd, SOMAXCONN) < 0)
-		return build_error("init::listen:", -1);
-
-	// allocate poll array
-	struct rlimit rl;
-	rl.rlim_cur = (1<<16);
-	rl.rlim_max = (1<<16);
-
-	// as user we cant set it higher
-	if (setrlimit(RLIMIT_NOFILE, &rl) < 0) {
-		if (getrlimit(RLIMIT_NOFILE, &rl) < 0)
-			return build_error("init::getrlimit:", -1);
-		rl.rlim_cur = rl.rlim_max;
-		if (setrlimit(RLIMIT_NOFILE, &rl) < 0)
-			return build_error("init::getrlimit:", -1);
-	}
-
-	int flags = fcntl(sock_fd, F_GETFL);
-	fcntl(sock_fd, F_SETFL, flags|O_NONBLOCK);
-
-	if ((d_pfds = new (nothrow) pollfd[rl.rlim_cur]) == nullptr)
-		return build_error("init::new: OOM", -1);
-	memset(d_pfds, 0, sizeof(struct pollfd) * rl.rlim_cur);
-	for (unsigned int i = 0; i < rl.rlim_cur; ++i)
-                d_pfds[i].fd = -1;
-
-	// setup listening socket for polling
-	d_max_fd = sock_fd;
-	d_first_fd = sock_fd;
-	d_pfds[sock_fd].fd = sock_fd;
-	d_pfds[sock_fd].events = POLLIN|POLLOUT;
-
-	if ((d_peers = new (nothrow) drops_peer*[rl.rlim_cur]) == nullptr)
-		return build_error("init::new: OOM", -1);
-	memset(d_peers, 0, rl.rlim_cur*sizeof(drops_peer *));
-
-	d_peers[sock_fd] = new (nothrow) drops_peer(laddr, lport, sock_fd, d_baddr->ai_family);
-	if (!d_peers[sock_fd])
-		return build_error("init::new: OOM", -1);
-	d_peers[sock_fd]->state(STATE_ACCEPTING);
-
-
 	// setup message store and cache
 	d_store = new (nothrow) drops_store(d_base, d_tag);
 	if (!d_store)
@@ -190,6 +128,122 @@ int drops_engine::init(const string &laddr, const string &lport, const string &i
 		return build_error("init::storage init:" + string(d_store->why()), -1);
 
 	nodes_from_store();
+
+
+	// allocate poll array
+	struct rlimit rl;
+	rl.rlim_cur = (1<<16);
+	rl.rlim_max = (1<<16);
+
+	// as user we cant set it higher
+	if (setrlimit(RLIMIT_NOFILE, &rl) < 0) {
+		errno = 0;
+		if (getrlimit(RLIMIT_NOFILE, &rl) < 0)
+			return build_error("init::getrlimit:", -1);
+		rl.rlim_cur = rl.rlim_max;
+		if (setrlimit(RLIMIT_NOFILE, &rl) < 0)
+			return build_error("init::getrlimit:", -1);
+	}
+
+	if ((d_pfds = new (nothrow) pollfd[rl.rlim_cur]) == nullptr)
+		return build_error("init::new: OOM", -1);
+	memset(d_pfds, 0, sizeof(struct pollfd) * rl.rlim_cur);
+	for (unsigned int i = 0; i < rl.rlim_cur; ++i)
+		d_pfds[i].fd = -1;
+
+	if ((d_peers = new (nothrow) drops_peer*[rl.rlim_cur]) == nullptr)
+		return build_error("init::new: OOM", -1);
+	memset(d_peers, 0, rl.rlim_cur*sizeof(drops_peer *));
+
+	int r = 0, flags = 0, sock_fd = -1, one = 1;
+	addrinfo hint;
+
+	if (laddr.size() > 0) {
+		memset(&hint, 0, sizeof(hint));
+		hint.ai_socktype = SOCK_STREAM;
+		hint.ai_family = AF_INET;
+
+		if ((r = getaddrinfo(laddr.c_str(), lport.c_str(), &hint, &d_baddr)) != 0)
+			return build_error("init::getaddrinfo:" + string(gai_strerror(r)), -1);
+
+		if (d_baddr->ai_family != AF_INET)
+			return build_error("init: laddr config option is not a valid IPv4 address.", -1);
+
+		if ((sock_fd = socket(d_baddr->ai_family, SOCK_STREAM, 0)) < 0)
+			return build_error("init::socket:", -1);
+
+		flags = fcntl(sock_fd, F_GETFL);
+		fcntl(sock_fd, F_SETFL, flags|O_NONBLOCK);
+
+		setsockopt(sock_fd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one));
+		one = 1;
+		setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+
+		if (bind(sock_fd, d_baddr->ai_addr, d_baddr->ai_addrlen) < 0)
+			return build_error("init::bind:", -1);
+
+		if (listen(sock_fd, SOMAXCONN) < 0)
+			return build_error("init::listen:", -1);
+
+		// setup listening socket for polling
+		d_max_fd = sock_fd;
+		d_first_fd = sock_fd;
+		d_pfds[sock_fd].fd = sock_fd;
+		d_pfds[sock_fd].events = POLLIN|POLLOUT;
+
+		d_peers[sock_fd] = new (nothrow) drops_peer(laddr, lport, sock_fd, d_baddr->ai_family);
+		if (!d_peers[sock_fd])
+			return build_error("init::new: OOM", -1);
+		d_peers[sock_fd]->state(STATE_ACCEPTING);
+	}
+
+	if (laddr6.size() == 0) {
+		if (laddr.size() == 0)
+			return build_error("init: Neither IPv4 nor IPv6 adddress given to bind to!", -1);
+		return 0;
+	}
+
+	// Now the same for the IPv6 bind address
+	memset(&hint, 0, sizeof(hint));
+	hint.ai_socktype = SOCK_STREAM;
+	hint.ai_family = AF_INET6;
+
+	if ((r = getaddrinfo(laddr6.c_str(), lport6.c_str(), &hint, &d_baddr6)) != 0)
+		return build_error("init::getaddrinfo:" + string(gai_strerror(r)), -1);
+
+	if (d_baddr6->ai_family != AF_INET6)
+		return build_error("init: laddr6 config option is not a valid IPv6 address.", -1);
+
+	if ((sock_fd = socket(d_baddr6->ai_family, SOCK_STREAM, 0)) < 0)
+		return build_error("init::socket:", -1);
+
+	one = 1;
+	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one));
+	one = 1;
+	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+
+	if (bind(sock_fd, d_baddr6->ai_addr, d_baddr6->ai_addrlen) < 0)
+		return build_error("init::bind:", -1);
+
+	if (listen(sock_fd, SOMAXCONN) < 0)
+		return build_error("init::listen:", -1);
+
+	flags = fcntl(sock_fd, F_GETFL);
+	fcntl(sock_fd, F_SETFL, flags|O_NONBLOCK);
+
+	// setup listening socket for polling
+	if (sock_fd > d_max_fd)
+		d_max_fd = sock_fd;
+	if (d_first_fd < 0)
+		d_first_fd = sock_fd;
+
+	d_pfds[sock_fd].fd = sock_fd;
+	d_pfds[sock_fd].events = POLLIN|POLLOUT;
+
+	d_peers[sock_fd] = new (nothrow) drops_peer(laddr6, lport6, sock_fd, d_baddr6->ai_family);
+	if (!d_peers[sock_fd])
+		return build_error("init::new: OOM", -1);
+	d_peers[sock_fd]->state(STATE_ACCEPTING);
 
 	return 0;
 }
@@ -245,6 +299,11 @@ drops_peer *drops_engine::connect(const string &ip, const string &port)
 	if ((r = getaddrinfo(ip.c_str(), port.c_str(), &hint, &tai)) < 0)
 		return build_error("getaddrinfo:" + string(gai_strerror(r)), nullptr);
 
+	if (tai->ai_family == AF_INET && !d_baddr)
+		return build_error("socket: Not bound to IPv4 socket but IPv4 node requested.", nullptr);
+	if (tai->ai_family == AF_INET6 && !d_baddr6)
+		return build_error("socket: Not bound to IPv6 socket but IPv6 node requested.", nullptr);
+
 	unique_ptr<addrinfo, addrinfo_del> ai(tai, freeaddrinfo);
 
 	if ((sock_fd = socket(ai->ai_family, SOCK_STREAM, 0)) < 0)
@@ -258,8 +317,15 @@ drops_peer *drops_engine::connect(const string &ip, const string &port)
 	one = 1;
 	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
-	if (bind(sock_fd, d_baddr->ai_addr, d_baddr->ai_addrlen) < 0)
-		return build_error("bind:", nullptr);
+	// Bind to the right local address (v4 vs. v6) depending on peer node is v4 or v6
+	if (ai->ai_family == AF_INET) {
+		if (bind(sock_fd, d_baddr->ai_addr, d_baddr->ai_addrlen) < 0)
+			return build_error("bind:", nullptr);
+	} else if (ai->ai_family == AF_INET6) {
+		if (bind(sock_fd, d_baddr6->ai_addr, d_baddr6->ai_addrlen) < 0)
+			return build_error("bind:", nullptr);
+	} else
+		return build_error("bind: Unknown address family.", nullptr);
 
 	if (::connect(sock_fd, ai->ai_addr, ai->ai_addrlen) < 0 && errno != EINPROGRESS) {
 		close(sock_fd);
@@ -975,7 +1041,7 @@ int drops_engine::cleanup(int i, time_t howlong)
 	delete d_peers[i];
 	d_peers[i] = nullptr;
 
-	if (i == d_max_fd)
+	if (i == d_max_fd && d_max_fd > d_first_fd)
 		--d_max_fd;
 
 	--d_npeers;
