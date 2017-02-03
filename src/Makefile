@@ -33,7 +33,7 @@ clean:
 	rm -rf *.o
 
 dh.o: dh.cc dh2048.cc
-	./newdh
+	test -s dh2048.cc || ./newdh
 	$(CXX) -c $(CXXFLAGS) $<
 
 config.o: config.cc

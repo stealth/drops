@@ -52,7 +52,7 @@ Then you simply run
 ```
 $ dropsd
 ```
-If you are missing a `nodes` file in `~/.drops/global`, you may specify the `--bootnode`
+If you are missing a `nodes` file in `~/.drops/global`, you may specify the `--bootstrap`
 parameter to connect to your first node.
 
 To send an opmsg to the network you would:
