@@ -1,13 +1,21 @@
 # drops sample config file
 
-# where to bind to IPv4 or IPv6 address
+# where to bind to for IPv4
 #
 #laddr = 1.2.3.4
-#laddr = 2017::1
+laddr = 0.0.0.0
+
+# where to bind to for IPv6
+#laddr6 = 2017::1
+laddr6=::
+
 
 # could be any port >= 1024 , but should stay the same between
 # invocations to allow for re-discovery by peers
 lport = 7350
+
+# for v6 it may be different
+lport6 = 7350
 
 
 # filter anything into inq from * to a dst-id that contains 11223344
