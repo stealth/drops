@@ -359,6 +359,7 @@ int drops_engine::loop()
 	drops_peer *tmp_p = nullptr;
 	string s = "", id = "", me = "";
 	time_t last_outq_check = 0, last_nodes_store = 0;
+	pair<time_t, time_t> tp;
 
 	for (;;) {
 		if ((r = poll(d_pfds, d_max_fd + 1, 2000)) < 0)
@@ -411,7 +412,15 @@ int drops_engine::loop()
 					break;
 
 				d_myaddrs[me] = d_now;
-				d_connected_nodes[tmp_p->node()] = make_pair(timeouts::initial, d_now);
+
+				// Remember any potentially pending reconnect timers
+				if (d_learned_nodes.count(tmp_p->node()) > 0) {
+					tp = d_learned_nodes[tmp_p->node()];
+					d_learned_nodes.erase(tmp_p->node());
+				} else
+					tp = make_pair(timeouts::initial, d_now);
+
+				d_connected_nodes[tmp_p->node()] = tp;
 
 				if (tmp_p->fd() > d_max_fd)
 					d_max_fd = tmp_p->fd();
@@ -516,7 +525,7 @@ int drops_engine::loop()
 						d_peers[i]->state(STATE_PINGPONG_SND);
 					}
 
-					// 0 means its valid handshaked
+					// 0 means its valid handshaked, set reconnect timer to 0
 					d_connected_nodes[d_peers[i]->node()].first = timeouts::none;
 					d_has_new_nodes = 1;
 					d_log.logit("<", d_peers[i]->node() + (d_peers[i]->has_accepted() ? " via accept() " : " via connect() ") + s, d_now);
@@ -631,8 +640,7 @@ int drops_engine::loop()
 			string node = n->first;
 
 			// transfer re-connect timers from learned_nodes to connected_nodes
-			pair<time_t, time_t> tp = n->second;
-
+			tp = n->second;
 			n = d_learned_nodes.erase(n);
 
 			// dont connect twice
