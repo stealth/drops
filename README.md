@@ -131,7 +131,7 @@ may be listed in `~/.drops/global/flying`.
 You have to have a clock thats set more or less to the correct time (a few hours shift
 dont matter). Clock accuracy is required as the _drops_ network checks so called _Submit-Keys_
 for each message. These are unique RSA-keys wich are increasing one bit in size each day (the `Bits of today=`).
-This way _drops_ messages older than 10 days vanish from the p2p network and _drops_ becomes more resistance against
+This way _drops_ messages older than 10 days vanish from the p2p network and _drops_ becomes more resistant against
 DoS attacks.
 
 The log can be found in `~/.drops/global/log.txt`. It shows your peers and errors that
