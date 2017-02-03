@@ -95,7 +95,7 @@ should work in most cases.
 Then you simply run:
 
 ```
-$ ~/.drops/bin/dropsd
+$ dropsd
 
 drops: version=0.11 -- (C) 2017 Sebastian Krahmer https://github.com/stealth/drops
 

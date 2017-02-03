@@ -210,6 +210,12 @@ int main(int argc, char **argv)
 		case 'p':
 			config::lport = optarg;
 			break;
+		case 'L':
+			config::laddr6 = optarg;
+			break;
+		case 'P':
+			config::lport6 = optarg;
+			break;
 		case 'T':
 			config::tag = optarg;
 			if (!is_hex_hash(config::tag) && config::tag != "global") {
@@ -242,6 +248,7 @@ int main(int argc, char **argv)
 
 	cout<<prefix<<"Bits of today="<<bits_of_today()<<" id="<<id<<" tag="<<config::tag<<endl
 	    <<prefix<<"laddr="<<config::laddr<<" lport="<<config::lport<<endl
+	    <<prefix<<"laddr6="<<config::laddr6<<" lport6="<<config::lport6<<endl
 	    <<prefix<<"Going background.\n\n";
 
 	if (to_daemon() < 0)
