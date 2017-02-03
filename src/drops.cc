@@ -299,12 +299,12 @@ drops_peer *drops_engine::connect(const string &ip, const string &port)
 	if ((r = getaddrinfo(ip.c_str(), port.c_str(), &hint, &tai)) < 0)
 		return build_error("getaddrinfo:" + string(gai_strerror(r)), nullptr);
 
-	if (tai->ai_family == AF_INET && !d_baddr)
-		return build_error("socket: Not bound to IPv4 socket but IPv4 node requested.", nullptr);
-	if (tai->ai_family == AF_INET6 && !d_baddr6)
-		return build_error("socket: Not bound to IPv6 socket but IPv6 node requested.", nullptr);
-
 	unique_ptr<addrinfo, addrinfo_del> ai(tai, freeaddrinfo);
+
+	if (ai->ai_family == AF_INET && !d_baddr)
+		return build_error("socket: Not bound to IPv4 socket but IPv4 node requested.", nullptr);
+	if (ai->ai_family == AF_INET6 && !d_baddr6)
+		return build_error("socket: Not bound to IPv6 socket but IPv6 node requested.", nullptr);
 
 	if ((sock_fd = socket(ai->ai_family, SOCK_STREAM, 0)) < 0)
 		return build_error("socket:", nullptr);
