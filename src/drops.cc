@@ -176,7 +176,9 @@ int drops_engine::init(const string &laddr, const string &lport, const string &l
 		flags = fcntl(sock_fd, F_GETFL);
 		fcntl(sock_fd, F_SETFL, flags|O_NONBLOCK);
 
+#ifndef __CYGWIN__
 		setsockopt(sock_fd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one));
+#endif
 		one = 1;
 		setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
@@ -219,7 +221,9 @@ int drops_engine::init(const string &laddr, const string &lport, const string &l
 		return build_error("init::socket:", -1);
 
 	one = 1;
+#ifndef __CYGWIN__
 	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one));
+#endif
 	one = 1;
 	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
@@ -314,7 +318,9 @@ drops_peer *drops_engine::connect(const string &ip, const string &port)
 	fcntl(sock_fd, F_SETFL, flags|O_NONBLOCK);
 
 	int one = 1;
+#ifndef __CYGWIN__
 	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one));
+#endif
 	one = 1;
 	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
