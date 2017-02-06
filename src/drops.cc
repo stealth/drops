@@ -18,7 +18,6 @@
  * along with drops.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _POSIX_SOURCE
 #include <stdint.h>
 #include <string>
 #include <sstream>
@@ -69,6 +68,8 @@ int log::init(const string &path)
 	return 0;
 }
 
+
+extern "C" struct tm *localtime_r(const time_t *, struct tm *);
 
 int log::logit(const string &tag, const string &s, time_t t)
 {
