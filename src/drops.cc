@@ -18,6 +18,7 @@
  * along with drops.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sys/cdefs.h>
 #define _POSIX_SOURCE
 #include <stdint.h>
 #include <string>
