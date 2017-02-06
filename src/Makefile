@@ -27,7 +27,7 @@ install:
 	test -d ~/.drops || (cp -arp ../non-commercial ~/.drops || true)
 
 dropsd: dh.o drops.o peer.o message.o misc.o base64.o ssl.o main.o flavor-linux.o numbers.o missing.o config.o
-	$(LD) $^ -o dropsd $(LIBS)
+	$(LD) dh.o drops.o peer.o message.o misc.o base64.o ssl.o main.o flavor-linux.o numbers.o missing.o config.o -o dropsd $(LIBS)
 
 clean:
 	rm -rf *.o
