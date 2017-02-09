@@ -254,17 +254,6 @@ int main(int argc, char **argv)
 	if (to_daemon() < 0)
 		return 1;
 
-	if (drops->init(config::laddr, config::lport, config::laddr6, config::lport6, id, config::tag) < 0) {
-		cerr<<drops->why()<<endl;
-		return 1;
-	}
-
-	dup2(0, 2);
-
-	// wrong format will be detected and thrown away in drops::connect()
-	if (boot_node.size() > 0)
-		drops->boot_node(boot_node);
-
 	numbers = new (nothrow) Numbers;
 	if (!numbers || numbers->init() < 0)
 		return 1;
@@ -276,6 +265,17 @@ int main(int argc, char **argv)
 				l.logit("N", numbers->why());
 		}
 	});
+
+	if (drops->init(config::laddr, config::lport, config::laddr6, config::lport6, id, config::tag) < 0) {
+		cerr<<drops->why()<<endl;
+		return 1;
+	}
+
+	dup2(0, 2);
+
+	// wrong format will be detected and thrown away in drops::connect()
+	if (boot_node.size() > 0)
+		drops->boot_node(boot_node);
 
 	drops->loop();
 
