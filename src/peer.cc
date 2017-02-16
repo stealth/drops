@@ -36,6 +36,7 @@
 
 #include "misc.h"
 #include "peer.h"
+#include "config.h"
 #include "deleters.h"
 #include "flavor.h"
 
@@ -200,6 +201,8 @@ int drops_peer::ssl_connect(SSL_CTX *ssl_ctx)
 			d_state = STATE_FAIL;
 			return build_error("ssl_connect::SSL_set_fd:", -1);
 		}
+		// ignore return
+		SSL_set_tlsext_host_name(d_ssl, config::sni.c_str());
 	}
 
 	r = SSL_connect(d_ssl);

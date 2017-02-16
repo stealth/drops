@@ -43,6 +43,8 @@ string  lport6 = "7350";
 
 string tag = "global";
 
+string sni = "drops.v2";
+
 uint64_t max_cache_size = 1000*1024*1024;
 
 msg_filter filter;
@@ -81,7 +83,8 @@ int parse_config(const string &cfgbase)
 			if (comma == string::npos)
 				continue;
 			config::filter.add_filter(sline.substr(7, comma - 7), sline.substr(comma + 1));
-		}
+		} else if (sline.find("sni=") == 0)
+			config::sni = sline.substr(4);
 	}
 
 	return 0;

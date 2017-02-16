@@ -53,6 +53,7 @@ void usage(const char *s)
 	    <<"\t--lport6,\t-P\tlocal TCPv6 port (default "<<config::lport6<<")\n"
 	    <<"\t--newlocal,\t-N\tinitially set up a new local drops\n"
 	    <<"\t--tag,\t\t-T\tdrops tag (defaults to 'global')\n"
+	    <<"\t--sni,\t\t-S\tSNI to use in connects (defaults to '"<<config::sni<<"')\n"
 	    <<"\t--bootstrap,\t-B\tbootstrap node if node file is empty and not initial local dropsd\n\n";
 
 	exit(1);
@@ -175,6 +176,7 @@ int main(int argc, char **argv)
 		{"lport6", required_argument, nullptr, 'P'},
 		{"newlocal", no_argument, nullptr, 'N'},
 		{"tag", required_argument, nullptr, 'T'},
+		{"sni", required_argument, nullptr, 'S'},
 		{"bootstrap", required_argument, nullptr, 'B'},
 		{nullptr, 0, nullptr, 0}
 	};
@@ -202,7 +204,7 @@ int main(int argc, char **argv)
 	if (parse_config(config::cfgbase) < 0)
 		cerr<<prefix<<"WARN: failed to parse config file. Continuing.\n";
 
-	while ((c = getopt_long(argc, argv, "l:p:L:P:c:T:B:N", lopts, &opt_idx)) != -1) {
+	while ((c = getopt_long(argc, argv, "l:p:L:P:c:T:B:S:N", lopts, &opt_idx)) != -1) {
 		switch (c) {
 		case 'l':
 			config::laddr = optarg;
@@ -235,9 +237,18 @@ int main(int argc, char **argv)
 		case 'B':
 			boot_node = optarg;
 			break;
+		case 'S':
+			config::sni = optarg;
+			break;
 		default:
 			usage(argv[0]);
 		}
+	}
+
+	if (strtoul(config::lport.c_str(), nullptr, 10) < 1024 ||
+	    strtoul(config::lport6.c_str(), nullptr, 10) < 1024) {
+		cout<<prefix<<"Port < 1024 detected. This is most likely not what you want. HTTPS hiding should be done via SNI proxy.\n\n";
+		return 1;
 	}
 
 	drops_engine *drops = new (nothrow) drops_engine(config::cfgbase);

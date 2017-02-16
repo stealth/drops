@@ -761,14 +761,9 @@ int drops_engine::parse_handshake(drops_peer *p, const string &hsk)
 		if ((comma = hsk.find(",", i)) == string::npos)
 			return -1;
 		node = hsk.substr(i, comma - i);
-
-		if (normalize_node(node) < 0)
-			continue;	// silently ignore
-
 		i = comma;
 
-		// silently ignore
-		if (d_myaddrs.count(node) > 0) {
+		if (normalize_node(node) < 0 || d_myaddrs.count(node) > 0) {
 			d_log.logit("<", "Silently ignoring node " + node + " from " + p->node(), d_now);
 			continue;
 		}
