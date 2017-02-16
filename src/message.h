@@ -43,6 +43,12 @@ namespace drops {
 
 class drops_store {
 
+public:
+
+	typedef off_t iterator;
+
+private:
+
 	std::string d_base{""}, d_err{""}, d_tag{""};
 
 	// hex id  -> content + date
@@ -51,6 +57,8 @@ class drops_store {
 	std::string::size_type d_cache_size{0};
 
 	unsigned long d_ssl_e{0};
+
+	iterator d_first_idx{0};
 
 	int d_idfd{-1};
 
@@ -85,7 +93,6 @@ public:
 
 	friend int walk(const char *, const struct stat *, int, struct FTW *);
 
-	typedef off_t iterator;
 
 	drops_store(std::string &cfg, std::string &t)
 	: d_base(cfg), d_tag(t)
@@ -126,7 +133,7 @@ public:
 
 	drops_store::iterator begin()
 	{
-		return 0;
+		return d_first_idx;
 	}
 
 	drops_store::iterator end()

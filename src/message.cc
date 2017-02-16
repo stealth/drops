@@ -74,6 +74,9 @@ drops_store::iterator drops_store::fetch_inc(drops_store::iterator i, string &he
 
 	hex = "nothing";
 
+	// can we skip entries from index file for future lookups?
+	bool can_fwd_first_idx = (i == d_first_idx);
+
 	char buf[512] = {0};
 	ssize_t n = 0;
 	for (;;) {
@@ -96,8 +99,11 @@ drops_store::iterator drops_store::fetch_inc(drops_store::iterator i, string &he
 		i += (idx2 - idx1) + 2;	// +1 for newline
 		time_t date = (time_t)strtoull(s1.c_str() + idx1, nullptr, 10);
 		if ((date < d_now && d_now - date > ten_days) ||
-		    (d_now < date && date - d_now > one_day))
+		    (d_now < date && date - d_now > one_day)) {
+			if (can_fwd_first_idx)
+				d_first_idx = i;
 			continue;
+		}
 		hex = s2;
 		break;
 	}
