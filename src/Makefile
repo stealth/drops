@@ -11,7 +11,6 @@ INC=
 #INC+=-I/usr/local/libressl/include
 #LIBS+=-L/usr/local/libressl/lib64
 #LIBS+=-Wl,--rpath=/usr/local/libressl/lib64
-#DEFS+=-DHAVE_BN_GENCB_NEW=0
 #DEFS+=-DHAVE_LIBRESSL
 
 
@@ -20,7 +19,7 @@ LD=c++
 LIBS+=-lssl -lcrypto -pthread
 
 
-all: dropsd
+all: clean dropsd
 
 
 install:
