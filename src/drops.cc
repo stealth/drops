@@ -700,7 +700,7 @@ static int normalize_node(string &node)
 	}
 
 	uint16_t port = 0;
-	if (sscanf(s.c_str() + bracket + 2, "%hu", &port) != 1 || port < 1024)
+	if (sscanf(s.c_str() + bracket + 2, "%hu", &port) != 1 || (port < 1024 && port != 443))
 		return -1;
 
 	char pbuf[32] = {0};
@@ -763,7 +763,7 @@ int drops_engine::parse_handshake(drops_peer *p, const string &hsk)
 		node = hsk.substr(i, comma - i);
 
 		if (normalize_node(node) < 0)
-			return -1;
+			continue;	// silently ignore
 
 		i = comma;
 
@@ -1008,7 +1008,7 @@ int drops_engine::nodes_from_store()
 		}
 
 		// ignore time-punish for now
-		if (sscanf(line.c_str() + pidx + 2, "%hu,%016llu,", &sport, &t) != 2 || sport < 1024)
+		if (sscanf(line.c_str() + pidx + 2, "%hu,%016llu,", &sport, &t) != 2 || (sport < 1024 && sport != 443))
 			continue;
 
 		d_learned_nodes[line.substr(0, comma)] = make_pair(timeouts::initial, d_now);
