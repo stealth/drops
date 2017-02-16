@@ -39,7 +39,7 @@ using namespace std;
 using namespace drops;
 
 
-string prefix = "drops: ", version = "version=0.11";
+string prefix = "drops: ", version = "version=0.12";
 
 
 void usage(const char *s)
