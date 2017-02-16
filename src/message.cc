@@ -131,19 +131,19 @@ bool drops_store::has_id(const string &hex)
 int drops_store::index(const string &hex)
 {
 	if (!is_hex_hash(hex))
-		return build_error("cache: Not a valid hex string.", -1);
+		return build_error("index: Not a valid hex string.", -1);
 
 	string path = d_base + "/" + d_tag + "/flying/" + hex.substr(0, 4) + "/" + hex;
 
 	int fd = open(path.c_str(), O_RDONLY);
 	if (fd < 0)
-		return build_error("cache::open:", -1);
+		return build_error("index::open:", -1);
 
 	char buf[8192 + 1] = {0};
 	ssize_t r = 0;
 	if ((r = read(fd, buf, sizeof(buf) - 1)) <= 0) {
 		close(fd);
-		return build_error("index_one::read:", -1);
+		return build_error("index::read:", -1);
 	}
 	close(fd);
 
@@ -155,11 +155,11 @@ int drops_store::index(const string &hex)
 	// own setup by modifying it, wont you?
 	string::size_type idx = msg.find("date=");
 	if (idx == string::npos)
-		return build_error("cache: Invalid msg format", -1);
+		return build_error("index: Invalid msg format", -1);
 	idx += 5;
 	string::size_type comma = msg.find(",", idx);
 	if (comma == string::npos)
-		return build_error("cache: Invalid msg format", -1);
+		return build_error("index: Invalid msg format", -1);
 
 	time_t date = (time_t)strtoull(msg.substr(idx, comma - idx).c_str(), nullptr, 10);
 	if (date < d_now) {
