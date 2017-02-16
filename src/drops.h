@@ -93,7 +93,7 @@ class drops_engine {
 
 	addrinfo *d_baddr{nullptr}, *d_baddr6{nullptr};	// where to bind to
 
-	unsigned int d_version = 1;
+	unsigned int d_version = 2;
 
 	unsigned long d_ssl_e{0};	// cached last SSL error
 
