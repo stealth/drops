@@ -226,7 +226,7 @@ drops: All others execute: dropsd -T 87cb0b3623b7cdcc696e8f172b06820a -B [yourip
 ```
 
 Local _drops_ are using different client/server certificates than global ones.
-The keys are located within the _~/.drops/local/<TAG>_ directory (`~/.drops/local/87cb0b3623b7cdcc696e8f172b06820a/` in this
+The keys are located within the _~/.drops/local/TAG_ directory (`~/.drops/local/87cb0b3623b7cdcc696e8f172b06820a/` in this
 example).
 You may set up your own CA and replace the .pem files
 with your own to entirely close your local _drops_ to persons who are in possession of these keys.
