@@ -240,7 +240,9 @@ local _drops_ as mentioned above. As there doesnt exist any _nodes_ file for the
 local _drops_, the `-B` parameter is required to name a bootsrap node for the first run.
 Once the network is settled, every peer may shutdown and restart their _drops_ instances
 via `dropsd -T 87cb0b3623b7cdcc696e8f172b06820a`, as the _nodes_ file should already be properly
-populated at this point.
-
-
+populated at this point. Note that in above example the common _~/.drops/config_ file would
+be used which maybe doesnt reflect the filters you need, if you use different _opmsg_ personas
+in your local setup than in the global one. This may be changed via `-c`. Message filters however
+are just a passive thing and nothing is leaked to either setup, so it would be safe to have all filters
+within a single config.
 
