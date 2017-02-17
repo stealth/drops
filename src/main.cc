@@ -45,7 +45,7 @@ string prefix = "drops: ", version = "version=0.12";
 void usage(const char *s)
 {
 	cout<<"Usage: dropsd\t[--confdir dir] [--laddr] [--lport] [--laddr6] [--lport6]\n"
-	    <<"\t\t[--newlocal] [-T tag] [--bootstrap node]\n\n"
+	    <<"\t\t[--newlocal] [-T tag] [--bootstrap node] [--sni name]\n\n"
 	    <<"\t--confdir,\t-c\t(must come first) defaults to ~/.drops\n"
 	    <<"\t--laddr,\t-l\tlocal IPv4 address to bind to (default any)\n"
 	    <<"\t--lport,\t-p\tlocal TCPv4 port (default "<<config::lport<<")\n"
