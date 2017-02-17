@@ -67,11 +67,9 @@ Run
 ```
 $ dropsd -h
 
-drops: version=0.11 -- (C) 2017 Sebastian Krahmer https://github.com/stealth/drops
-
 ./dropsd: invalid option -- 'h'
 Usage: dropsd   [--confdir dir] [--laddr] [--lport] [--laddr6] [--lport6]
-                [--newlocal] [-T tag] [--bootstrap node]
+                [--newlocal] [-T tag] [--bootstrap node] [--sni name]
 
         --confdir,      -c      (must come first) defaults to ~/.drops
         --laddr,        -l      local IPv4 address to bind to (default any)
@@ -80,6 +78,7 @@ Usage: dropsd   [--confdir dir] [--laddr] [--lport] [--laddr6] [--lport6]
         --lport6,       -P      local TCPv6 port (default 7350)
         --newlocal,     -N      initially set up a new local drops
         --tag,          -T      drops tag (defaults to 'global')
+        --sni,          -S      SNI to use in connects (defaults to 'drops.v2')
         --bootstrap,    -B      bootstrap node if node file is empty and not initial local dropsd
 
 ```
@@ -97,10 +96,11 @@ Then you simply run:
 ```
 $ dropsd
 
-drops: version=0.11 -- (C) 2017 Sebastian Krahmer https://github.com/stealth/drops
+drops: version=0.12 -- (C) 2017 Sebastian Krahmer https://github.com/stealth/drops
 
-drops: Bits of today=5034 id=0cabf203226be0e3d1ca77b35f470000 tag=global
+drops: Bits of today=5048 id=d34f22641a1594b62e25bf4833245ad7 tag=global
 drops: laddr=0.0.0.0 lport=7350
+drops: laddr6=:: lport6=7350
 drops: Going background.
 
 ```
@@ -169,7 +169,7 @@ reflects it:
 
 ```
 
-$ opmsg --newecp --name 'jimmy @drops'
+$ opmsg --newecp --name jimmy@drops
 
 opmsg: version=1.75 -- (C) 2016 opmsg-team: https://github.com/stealth/opmsg
 
@@ -180,7 +180,7 @@ opmsg: creating new EC persona (curve brainpoolP512t1)
 opmsg: Successfully generated persona with id
 opmsg: 233054f68bfc8e57 332a29b7011be2c4 01c51ac318d91515 7f034712253b9211
 opmsg: Tell your remote peer to add the following pubkey like this:
-opmsg: opmsg --import --phash sha256 --name 'jimmy @drops'
+opmsg: opmsg --import --phash sha256 --name 'jimmy@drops'
 
 -----BEGIN PUBLIC KEY-----
 MIGbMBQGByqGSM49AgEGCSskAwMCCAEBDgOBggAEabqKWhf4Qvj8BWz6jO4MsKjd
@@ -210,5 +210,37 @@ Which Jimmy will find in his `~/.drops/global/inq`.
 Local drops
 -----------
 
-(TODO)
+There may be circumstances when you want to use _drops_ but dont want to submit
+your messages to be globally visible. For such reasons local _drops_ exist:
+
+```
+$ dropsd -N
+
+drops: version=0.12 -- (C) 2017 Sebastian Krahmer https://github.com/stealth/drops
+
+drops: Success setting up new local drops with tag 87cb0b3623b7cdcc696e8f172b06820a
+
+drops: You execute: dropsd -T 87cb0b3623b7cdcc696e8f172b06820a
+drops: All others execute: dropsd -T 87cb0b3623b7cdcc696e8f172b06820a -B [yourip]:yourport
+
+```
+
+Local _drops_ are using different client/server certificates than global ones.
+The keys are located within the _~/.drops/local/<TAG>_ directory (`~/.drops/local/87cb0b3623b7cdcc696e8f172b06820a/` in this
+example).
+You may set up your own CA and replace the .pem files
+with your own to entirely close your local _drops_ to persons who are in possession of these keys.
+Otherwise the above tag `87cb0b3623b7cdcc696e8f172b06820a` is the ticket to enter your local _drops_
+and it is unique to each new local _drops_.
+Your friends would issue `dropsd -T 87cb0b3623b7cdcc696e8f172b06820a -B [yourip]:yourport` once
+you started the newly generated _drops_ via `dropsd -T 87cb0b3623b7cdcc696e8f172b06820a`
+just as it reads above. The reason you explicitely need to start the new instance after
+you generated it with `-N` is that you have time to switch the key material for the new
+local _drops_ as mentioned above. As there doesnt exist any _nodes_ file for the new
+local _drops_, the `-B` parameter is required to name a bootsrap node for the first run.
+Once the network is settled, every peer may shutdown and restart their _drops_ instances
+via `dropsd -T 87cb0b3623b7cdcc696e8f172b06820a`, as the _nodes_ file should already be properly
+populated at this point.
+
+
 
