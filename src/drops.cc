@@ -383,7 +383,7 @@ int drops_engine::loop()
 					continue;
 				} else if (d_now - d_peers[i]->timer() > timeouts::pingpong) {
 					d_log.logit(">", "pingpong timeout for " + d_peers[i]->node(), d_now);
-					cleanup(i, timeouts::reconnect);
+					cleanup(i, timeouts::fin_wait);
 					continue;
 				} else if (d_peers[i]->state() == STATE_FAIL) {
 					cleanup(i, timeouts::reconnect);

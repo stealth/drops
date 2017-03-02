@@ -36,6 +36,7 @@ enum {
 	none		= 0,
 	initial		= 1,
 	reconnect	= 30,
+	fin_wait	= 180,
 
 	// for state machine timeouts
 	connect		= 5,
