@@ -8,11 +8,16 @@ If you are new to _opmsg_, click the link for more info and how to set it up.
 
 * p2p architecture that doesnt require central servers
 * almost no meta data
-* allows for secure, anonymous communication
+* allows for secure, anonymous (see below) communication
 * no more secret court orders to take down your favorite mail provider
 * use the same _opmsg_ setup that you use for email
 * Interconnects IPv4 and IPv6 space
 * be part of the global opmsg p2p or a private local p2p with your friends
+
+_Since the drops p2p message network has too few nodes at the moment, the level
+of anonymity is close to zero, if used from a traceable IP. Do not use it to
+leak stuff or similar. The level of anonymity will increase in future as more nodes will enter
+the p2p network._
 
 
 License
