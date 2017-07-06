@@ -88,7 +88,7 @@ Usage: dropsd   [--confdir dir] [--laddr] [--lport] [--laddr6] [--lport6]
 
 ```
 
-Edit `~/.drops/global/config` to set at least the filters you need, to catch the _opmsg_ personas
+Edit `~/.drops/config` to set at least the filters you need, to catch the _opmsg_ personas
 that you own and maybe the other self-explaining parameters. Its ok to not have any filters in place,
 in which case you just volunteer to forward drops messages.
 The address and port binding should work for most installations. Make sure your firewall rules allow direct connection to the
