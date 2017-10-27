@@ -886,7 +886,7 @@ int drops_engine::parse_pingpong_msg(drops_peer *p, const string &pp)
 	if (config::filter.filter(body))
 		d_store->store_inq(msgid, body);
 
-	d_has_new_msg = 22;
+	d_has_new_msg = 2;
 
 	return 0;
 }
