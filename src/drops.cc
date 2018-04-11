@@ -713,7 +713,7 @@ static int normalize_node(string &node)
 
 int drops_engine::parse_handshake(drops_peer *p, const string &hsk)
 {
-	string::size_type idx = string::npos, comma = 0, i = 0, bracket = 0;
+	string::size_type idx = string::npos, comma = 0, i = 0;
 
 	if ((idx = hsk.find("{drops;version=")) != 0)
 		return build_error("parse_handshake: Not a drops message", -1);
