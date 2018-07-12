@@ -1,3 +1,6 @@
+# on FreeBSD, this would be c++7 and similar for $LD. Since gcc6 missed define of isascii()
+#CXX=c++7
+
 CXX=c++
 DEFS=
 INC=
@@ -15,6 +18,7 @@ INC=
 
 
 CXXFLAGS=-O2 -Wall -pedantic -std=c++11 $(INC) $(DEFS)
+#LD=c++7
 LD=c++
 LIBS+=-lssl -lcrypto -pthread
 

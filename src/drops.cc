@@ -36,6 +36,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <sys/resource.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 
@@ -180,7 +181,7 @@ int drops_engine::init(const string &laddr, const string &lport, const string &l
 		one = 1;
 		setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
-		if (bind(sock_fd, d_baddr->ai_addr, d_baddr->ai_addrlen) < 0)
+		if (::bind(sock_fd, d_baddr->ai_addr, d_baddr->ai_addrlen) < 0)
 			return build_error("init::bind:", -1);
 
 		if (listen(sock_fd, SOMAXCONN) < 0)
@@ -223,7 +224,7 @@ int drops_engine::init(const string &laddr, const string &lport, const string &l
 	one = 1;
 	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
-	if (bind(sock_fd, d_baddr6->ai_addr, d_baddr6->ai_addrlen) < 0)
+	if (::bind(sock_fd, d_baddr6->ai_addr, d_baddr6->ai_addrlen) < 0)
 		return build_error("init::bind:", -1);
 
 	if (listen(sock_fd, SOMAXCONN) < 0)
@@ -320,10 +321,10 @@ drops_peer *drops_engine::connect(const string &ip, const string &port)
 
 	// Bind to the right local address (v4 vs. v6) depending on peer node is v4 or v6
 	if (ai->ai_family == AF_INET) {
-		if (bind(sock_fd, d_baddr->ai_addr, d_baddr->ai_addrlen) < 0)
+		if (::bind(sock_fd, d_baddr->ai_addr, d_baddr->ai_addrlen) < 0)
 			return build_error("bind:", nullptr);
 	} else if (ai->ai_family == AF_INET6) {
-		if (bind(sock_fd, d_baddr6->ai_addr, d_baddr6->ai_addrlen) < 0)
+		if (::bind(sock_fd, d_baddr6->ai_addr, d_baddr6->ai_addrlen) < 0)
 			return build_error("bind:", nullptr);
 	} else
 		return build_error("bind: Unknown address family.", nullptr);
@@ -690,7 +691,8 @@ static int normalize_node(string &node)
 	char buf[256] = {0};
 	in_addr in = {0};
 	if (inet_pton(AF_INET, ip.c_str(), &in) != 1) {
-		in6_addr in6 = {0};
+		in6_addr in6;
+		memset(&in6, 0, sizeof(in6));
 		if (inet_pton(AF_INET6, ip.c_str(), &in6) != 1)
 			return -1;
 		else

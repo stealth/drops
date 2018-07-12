@@ -1,9 +1,9 @@
-#!/usr/bin/perl
+#!/bin/sh
 
 # make sure you use the right "openssl" binary. For libressl
 # installs these may be different than the standard one
 
 #$ENV{PATH} = "/usr/local/ssl/bin:$ENV{PATH}";
-print "Generating 2048 bit DH parameters ...\n\n";
-system("openssl dhparam -5 -noout -C 2048 > dh2048.cc");
+echo "Generating 2048 bit DH parameters ...";
+openssl dhparam -5 -noout -C 2048 > dh2048.cc
 
